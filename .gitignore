@@ -23,7 +23,7 @@ checkpoints/
 *.pkl
 
 # Datasets (Large Files)
-candidate_job_role_dataset.csv
+# candidate_job_role_dataset.csv
 
 # Output Tests
 .pytest_cache/
