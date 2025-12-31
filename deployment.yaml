@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: job-role-predictor-deploy
+  labels:
+    app: job-role-predictor
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: job-role-predictor
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1  # Only 1 pod down during update
+      maxSurge: 1        # Only 1 pod extra during update (Total 3 max)
+  template:
+    metadata:
+      labels:
+        app: job-role-predictor
+    spec:
+      containers:
+      - name: predictor-container
+        image: job-role-predictor:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+        # Liveness: Restart if /health fails
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        # Readiness: Don't send traffic until /health passes
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"

@@ -1,0 +1,57 @@
+stages:
+  - commit
+  - acceptance
+  - train_and_register
+
+# --- 1. Commit Stage ---
+linting:
+  stage: commit
+  image: python:3.9-slim
+  script:
+    - pip install flake8 pylint safety
+    - flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+    - pylint src inference_service.py train_pipeline.py --fail-under=7.0
+    - safety check
+
+build:
+  stage: commit
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - python3 build_package.py
+
+# --- 2. Acceptance Test Stage ---
+unit_tests:
+  stage: acceptance
+  image: python:3.9-slim
+  script:
+    - pip install -r requirements.txt
+    - pytest tests/test_hashing.py tests/test_pipeline.py
+
+component_tests:
+  stage: acceptance
+  image: python:3.9-slim
+  script:
+    - pip install -r requirements.txt
+    - pytest tests/test_integration.py
+
+# --- 3. Model Logic Stage ---
+training_job:
+  stage: train_and_register
+  image: python:3.9-slim
+  script:
+    - pip install -r requirements.txt
+    - python workflow.py
+  artifacts:
+    paths:
+      - voting_clf.joblib
+      - checkpoints/
+
+smoke_test:
+  stage: train_and_register
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - python3 tests/smoke_test.py

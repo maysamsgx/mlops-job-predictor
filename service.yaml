@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: job-role-predictor-service
+spec:
+  selector:
+    app: job-role-predictor
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: LoadBalancer

@@ -1,0 +1,14 @@
+mlflow
+xgboost
+imbalanced-learn
+scikit-learn
+pandas
+fastapi
+uvicorn
+prometheus_client
+prefect
+pytest
+httpx
+flake8
+pylint
+safety
