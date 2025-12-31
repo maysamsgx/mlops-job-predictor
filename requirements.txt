@@ -12,3 +12,4 @@ httpx
 flake8
 pylint
 safety
+great_expectations
